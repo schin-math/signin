@@ -22,9 +22,6 @@
         <label for="name">Name:</label>
         <input name="name" id="name" required autocomplete="name" maxlength="64">
 
-        <label for="empid">Employee ID:</label>
-        <input name="empid" id="empid" required maxlength="32">
-
         <button type="submit">Sign In</button>
       </form>
       <div id="error"></div>
@@ -97,7 +94,6 @@
         // Record result (You'd send it to a Google Sheet, webhook, or email here)
         const data = {
           name: form.name.value,
-          empid: form.empid.value,
           latitude: userLat,
           longitude: userLon,
           timestamp: new Date().toISOString()
