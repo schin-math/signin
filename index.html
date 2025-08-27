@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Employee Geofenced Sign-In</title>
+    <style>
+      body { font-family: sans-serif; max-width: 400px; margin: 16px auto; background: #f8f9fa; }
+      #container { background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #ddd; padding: 24px; }
+      h2 { text-align: center; }
+      label { display: block; margin: 12px 0 6px; }
+      input, button { width: 100%; font-size: 1.1em; padding: 8px; }
+      #status { text-align: center; margin: 16px 0 8px; color: #1976d2; }
+      #error { color: #b71c1c; text-align: center; margin-top: 18px; }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h2>Employee Sign-In</h2>
+      <div id="status">Checking your location…</div>
+      <form id="signinform" class="hidden">
+        <label for="name">Name:</label>
+        <input name="name" id="name" required autocomplete="name" maxlength="64">
+
+        <label for="empid">Employee ID:</label>
+        <input name="empid" id="empid" required maxlength="32">
+
+        <button type="submit">Sign In</button>
+      </form>
+      <div id="error"></div>
+    </div>
+
+    <script>
+      // === CONFIGURE YOUR SITE LOCATION & FENCE HERE ===
+      const CENTER_LAT = 42.3763663;        // Example: replace with your office latitude
+      const CENTER_LON = -71.1167299;       // Example: replace with your office longitude
+      const RADIUS_METERS = 10;         // Geofence radius in meters
+
+      // Haversine formula (distance between two latitude/longitude points)
+      function distanceMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000; // Radius of earth in m
+        const dLat = (lat2-lat1) * Math.PI/180;
+        const dLon = (lon2-lon1) * Math.PI/180;
+        const a =
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) *
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+      }
+
+      const statusDiv = document.getElementById('status');
+      const errorDiv = document.getElementById('error');
+      const form = document.getElementById('signinform');
+      let userLat = null, userLon = null;
+
+      function showError(msg) {
+        errorDiv.textContent = msg;
+        statusDiv.textContent = '';
+        form.classList.add('hidden');
+      }
+
+      function showForm() {
+        errorDiv.textContent = '';
+        statusDiv.textContent = "You are on site. Please sign in below:";
+        form.classList.remove('hidden');
+      }
+
+      // Get geolocation as soon as page loads
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            userLat = pos.coords.latitude;
+            userLon = pos.coords.longitude;
+            const dist = distanceMeters(userLat, userLon, CENTER_LAT, CENTER_LON);
+            if (dist <= RADIUS_METERS) {
+              showForm();
+            } else {
+              showError(`You are not within the allowed location for sign-in (distance: ${Math.round(dist)}m).`);
+            }
+          },
+          err => {
+            if (err.code === 1) {
+              showError("Location access denied. Please allow location to sign in.");
+            } else {
+              showError("Unable to determine your location. Please try again.");
+            }
+          }
+        );
+      } else {
+        showError("Geolocation not supported on this device/browser.");
+      }
+
+      // Handle form submit
+      form.onsubmit = function(e) {
+        e.preventDefault();
+        // Record result (You'd send it to a Google Sheet, webhook, or email here)
+        const data = {
+          name: form.name.value,
+          empid: form.empid.value,
+          latitude: userLat,
+          longitude: userLon,
+          timestamp: new Date().toISOString()
+        };
+        // For demo, log to browser console
+        console.log("EMPLOYEE SIGN-IN:", data);
+        // User feedback
+        statusDiv.textContent = "Thank you, you have signed in successfully!";
+        form.classList.add('hidden');
+      };
+    </script>
+  </body>
+</html>
