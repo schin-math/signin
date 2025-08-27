@@ -31,9 +31,9 @@
       // === CONFIGURE YOUR SITE LOCATION & FENCE HERE ===
       const CENTER_LAT = 42.3763663;        // Example: replace with your office latitude
       const CENTER_LON = -71.1167299;       // Example: replace with your office longitude
-      const RADIUS_METERS = 10;         // Geofence radius in meters
+      const RADIUS_METERS = 10;             // Geofence radius in meters
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw_S7zamGVfLF_ebliYynfz7xF0M465hPaJLoPPdRv2S_6vbE31uPZFY7X0XkZJDY4Ukw/exec"; // <--- PASTE your Google Apps Script deployed URL here
 
-      // Haversine formula (distance between two latitude/longitude points)
       function distanceMeters(lat1, lon1, lat2, lon2) {
         const R = 6371000; // Radius of earth in m
         const dLat = (lat2-lat1) * Math.PI/180;
@@ -59,7 +59,11 @@
 
       function showForm() {
         errorDiv.textContent = '';
-        statusDiv.textContent = "You are on site. Please sign in below:";
+        statusDiv.innerHTML = `You are on site.<br>
+          <span style="font-size:0.9em; color:#888;">
+          (Lat: ${userLat.toFixed(5)}, Lon: ${userLon.toFixed(5)})
+          </span>
+          <br>Please sign in below:`;
         form.classList.remove('hidden');
       }
 
@@ -88,21 +92,33 @@
         showError("Geolocation not supported on this device/browser.");
       }
 
-      // Handle form submit
-      form.onsubmit = function(e) {
+      // Handle form submit -- MODIFIED to send to Google Sheets via Apps Script
+      form.onsubmit = async function(e) {
         e.preventDefault();
-        // Record result (You'd send it to a Google Sheet, webhook, or email here)
         const data = {
           name: form.name.value,
           latitude: userLat,
           longitude: userLon,
           timestamp: new Date().toISOString()
         };
-        // For demo, log to browser console
-        console.log("Math Ma CA SIGN-IN:", data);
-        // User feedback
-        statusDiv.textContent = "Thank you, you have signed in successfully!";
-        form.classList.add('hidden');
+        statusDiv.textContent = "Submitting...";
+        try {
+          let response = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json"
+            }
+          });
+          if (response.ok) {
+            statusDiv.textContent = "Thank you, you have signed in successfully!";
+            form.classList.add('hidden');
+          } else {
+            statusDiv.textContent = "Error: Unable to submit. Please try again.";
+          }
+        } catch (err) {
+          statusDiv.textContent = "Network error, please try again.";
+        }
       };
     </script>
   </body>
