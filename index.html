@@ -99,18 +99,18 @@
         };
         statusDiv.textContent = "Submitting...";
         try {
-            let formBody = new URLSearchParams(data).toString();
-            let response = await fetch(WEB_APP_URL, {
-              method: "POST",
-              body: formBody,
-              headers: { "Content-Type": "application/x-www-form-urlencoded" }
-            });
-          // let response = await fetch(WEB_APP_URL, {
-          //   method: "POST",
-          //   body: JSON.stringify(data),
-          //   headers: {
-          //     "Content-Type": "application/json"
-          //   }
+            // let formBody = new URLSearchParams(data).toString();
+            // let response = await fetch(WEB_APP_URL, {
+            //   method: "POST",
+            //   body: formBody,
+            //   headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            // });
+           let response = await fetch(WEB_APP_URL, {
+             method: "POST",
+             body: JSON.stringify(data),
+             headers: {
+               "Content-Type": "application/json"
+             }
           });
           if (response.ok) {
             statusDiv.textContent = "Thank you, you have signed in successfully!";
