@@ -59,11 +59,7 @@
 
       function showForm() {
         errorDiv.textContent = '';
-        statusDiv.innerHTML = `You are on site.<br>
-          <span style="font-size:0.9em; color:#888;">
-          (Lat: ${userLat.toFixed(5)}, Lon: ${userLon.toFixed(5)})
-          </span>
-          <br>Please sign in below:`;
+        statusDiv.innerHTML = `Please sign in below:`;
         form.classList.remove('hidden');
       }
 
