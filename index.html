@@ -32,7 +32,7 @@
       const CENTER_LAT = 42.3763663;        // Example: replace with your office latitude
       const CENTER_LON = -71.1167299;       // Example: replace with your office longitude
       const RADIUS_METERS = 50;             // Geofence radius in meters
-      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw_S7zamGVfLF_ebliYynfz7xF0M465hPaJLoPPdRv2S_6vbE31uPZFY7X0XkZJDY4Ukw/exec"; // <--- PASTE your Google Apps Script deployed URL here
+      const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzIRQc1jq1nMVSOejwluk74_umjTVj7Y13mUoiYf4xw-ulv4UEXt2mZAJcMHjCO0fCQrg/exec"; // <--- PASTE your Google Apps Script deployed URL here
 
       function distanceMeters(lat1, lon1, lat2, lon2) {
         const R = 6371000; // Radius of earth in m
@@ -99,12 +99,18 @@
         };
         statusDiv.textContent = "Submitting...";
         try {
-          let response = await fetch(WEB_APP_URL, {
-            method: "POST",
-            body: JSON.stringify(data),
-            // headers: {
-            //   "Content-Type": "application/json"
-            // }
+            let formBody = new URLSearchParams(data).toString();
+            let response = await fetch(WEB_APP_URL, {
+              method: "POST",
+              body: formBody,
+              headers: { "Content-Type": "application/x-www-form-urlencoded" }
+            });
+          // let response = await fetch(WEB_APP_URL, {
+          //   method: "POST",
+          //   body: JSON.stringify(data),
+          //   headers: {
+          //     "Content-Type": "application/json"
+          //   }
           });
           if (response.ok) {
             statusDiv.textContent = "Thank you, you have signed in successfully!";
