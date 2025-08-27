@@ -113,7 +113,7 @@
             statusDiv.textContent = "Error: Unable to submit. Please try again.";
           }
         } catch (err) {
-          statusDiv.textContent = "Network error, please try again.";
+          statusDiv.textContent = `Network error: ${err.message || err}`;
         }
       };
     </script>
